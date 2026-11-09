@@ -1,0 +1,37 @@
+# Ao enviar uma tag como v1.2.0, testa, gera o .exe e o .sha256 e publica a Release.
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt pyinstaller
+
+      - name: Testar
+        run: python -m unittest discover -s tests
+
+      - name: Gerar executável e hash
+        run: python build.py --tag ${{ github.ref_name }}
+
+      - name: Publicar Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create ${{ github.ref_name }}
+          dist/RenomeadorCTE.exe dist/RenomeadorCTE.exe.sha256
+          --title ${{ github.ref_name }} --generate-notes

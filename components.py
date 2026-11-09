@@ -554,6 +554,10 @@ class Modal(QDialog):
         self.message.setTextFormat(Qt.TextFormat.PlainText)
         layout.addWidget(self.message)
 
+        self.content = QVBoxLayout()
+        self.content.setSpacing(SPACING["sm"])
+        layout.addLayout(self.content)
+
         self.actions = QHBoxLayout()
         self.actions.setSpacing(SPACING["sm"])
         self.actions.addStretch()
