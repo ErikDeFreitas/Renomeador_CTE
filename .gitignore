@@ -1,0 +1,18 @@
+# PDFs de CT-e contêm dados reais de clientes e motoristas
+*.pdf
+CTEs_*/
+
+# Build
+build/
+dist/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Ambiente
+.claude/
+.vscode/
+.idea/
