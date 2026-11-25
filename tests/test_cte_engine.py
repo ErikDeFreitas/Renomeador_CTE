@@ -1,15 +1,12 @@
 """Testes do motor. Execute com: python -m unittest discover -s tests"""
 
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 from pypdf import PdfWriter
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
-import cte_engine as engine  # noqa: E402
+from renomeador_cte import cte_engine as engine
 
 
 def make_key(number: int, model: str = "57", series: int = 3, branch: str = "0001") -> str:

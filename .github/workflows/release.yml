@@ -1,16 +1,24 @@
-# Ao enviar uma tag como v1.2.0, testa, gera o .exe e o .sha256 e publica a Release.
+# Gera o RenomeadorCTE.exe no Windows do GitHub e publica na Release.
+#
+# Para lançar uma versão:
+#   1. suba __version__ em src/renomeador_cte/__init__.py
+#   2. crie a tag igual à versão (ex.: v2.0.0)
+#   3. envie a tag para o GitHub
+#
+# Também dá para rodar manualmente (aba Actions > Release > Run workflow):
+# nesse caso o .exe fica só como artefato do run, sem criar Release.
 name: Release
 
 on:
   push:
-    tags:
-      - "v*"
+    tags: ["v*"]
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  release:
+  build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,20 +26,47 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
+          cache: pip
 
       - name: Instalar dependências
-        run: pip install -r requirements.txt pyinstaller
+        run: python -m pip install -r requirements.txt . pytest pytest-qt pyinstaller
 
-      - name: Testar
-        run: python -m unittest discover -s tests
+      - name: Conferir que a tag bate com a versão
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          $tag = $env:TAG.TrimStart("v")
+          $versao = python -c "import renomeador_cte; print(renomeador_cte.__version__)"
+          if ($tag -ne $versao) {
+            Write-Error "A tag v$tag é diferente de __version__ ($versao)."
+            exit 1
+          }
+          Write-Host "Versão: $versao"
 
-      - name: Gerar executável e hash
-        run: python build.py --tag ${{ github.ref_name }}
+      - name: Rodar os testes
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: python -m pytest -q
+
+      - name: Gerar executável
+        shell: pwsh
+        run: ./build.ps1 -Python python
+
+      - name: Guardar artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: RenomeadorCTE
+          path: |
+            dist/RenomeadorCTE.exe
+            dist/RenomeadorCTE.exe.sha256
 
       - name: Publicar Release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: >
-          gh release create ${{ github.ref_name }}
-          dist/RenomeadorCTE.exe dist/RenomeadorCTE.exe.sha256
-          --title ${{ github.ref_name }} --generate-notes
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/RenomeadorCTE.exe
+            dist/RenomeadorCTE.exe.sha256
+          generate_release_notes: true

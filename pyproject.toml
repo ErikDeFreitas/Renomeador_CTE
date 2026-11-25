@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "renomeador-cte"
+dynamic = ["version"]
+description = "Renomeador de CT-e: separa um PDF de DACTEs em um arquivo por CT-e"
+requires-python = ">=3.11"
+dependencies = [
+    "tcm-ui>=1.4.0",
+    "pypdf>=5.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-qt"]
+
+[project.entry-points."sistema_financeiro.modulos"]
+renomeador_cte = "renomeador_cte.modulo:MODULO"
+
+[tool.setuptools.dynamic]
+version = {attr = "renomeador_cte.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,2 +1,1 @@
-PySide6>=6.8
-pypdf>=5.0
+tcm-ui @ git+https://github.com/ErikDeFreitas/Tcm-ui@v1.5.0
