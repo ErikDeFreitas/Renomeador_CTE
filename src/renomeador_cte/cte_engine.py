@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from pypdf import PdfReader, PdfWriter
-from pypdf.errors import PyPdfError
+from pypdf.errors import DependencyError, PyPdfError
 
 CTE_MODELS = {"57", "67"}  # 57 = CT-e, 67 = CT-e OS
 UNIDENTIFIED_STEM = "_paginas_nao_identificadas"
@@ -242,6 +242,8 @@ def _open_reader(path: Path) -> PdfReader:
         raise PdfAnalysisError("O arquivo não foi encontrado.") from exc
     except PermissionError as exc:
         raise PdfAnalysisError("Sem permissão para ler o arquivo.") from exc
+    except DependencyError as exc:  # ex.: criptografia AES sem o pacote cryptography
+        raise PdfAnalysisError("O PDF usa uma criptografia que este programa não consegue abrir.") from exc
     except (PyPdfError, OSError, ValueError) as exc:
         raise PdfAnalysisError(f"Não foi possível ler o PDF: {exc}") from exc
 

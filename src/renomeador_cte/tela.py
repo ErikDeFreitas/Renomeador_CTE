@@ -22,6 +22,18 @@ FILTRO_TODOS, FILTRO_PRONTOS, FILTRO_REVISAR = range(3)
 PAPEL_REVISAR = Qt.UserRole + 20  # no item da coluna Status: a linha precisa de revisão (Qt.UserRole é do texto)
 
 TEXTO_NAO_IDENTIFICADAS = "Estas páginas não têm chave nem número de CT-e. Foram reunidas em um arquivo à parte."
+LIMITE_ESPERA_MS = 10_000  # ao fechar o programa, quanto esperar a tarefa antes de derrubá-la
+
+
+def normalizar_pasta(texto: str, pdf: Path | None) -> str:
+    """Pasta digitada pelo usuário: sem aspas (cópia do Explorer) e, se relativa, a partir da pasta do PDF."""
+    limpo = texto.strip().strip('"').strip()
+    if not limpo:
+        return ""
+    pasta = Path(limpo)
+    if not pasta.is_absolute() and pdf is not None:
+        pasta = pdf.parent / pasta
+    return str(pasta)
 
 
 def plural(quantidade: int, singular: str, plural_: str) -> str:
@@ -148,7 +160,7 @@ class TelaRenomear(Pagina):
     def _atualizar_acoes(self) -> None:
         ocupado = self.rodando
         tem_cte = bool(self._resultado and self._resultado.documents)
-        self.botao_gerar.setEnabled(not ocupado and tem_cte and bool(self.campo_pasta.text().strip()))
+        self.botao_gerar.setEnabled(not ocupado and tem_cte and bool(self._pasta_destino()))
         for widget in (self.zona, self.campo_pasta, self.botao_procurar, self.campo_prefixo):
             widget.setEnabled(not ocupado)
 
@@ -161,13 +173,16 @@ class TelaRenomear(Pagina):
             self.analisar(caminho)
 
     def _procurar_pasta(self) -> None:
-        atual = self.campo_pasta.text().strip()
+        atual = self._pasta_destino()
         inicio = atual if atual and Path(atual).exists() else ""
         pasta = QFileDialog.getExistingDirectory(self.contexto.janela, "Selecionar pasta de destino", inicio)
         if pasta:
             self.campo_pasta.setText(str(Path(pasta)))
             self._pasta_do_usuario = True
             self._atualizar_acoes()
+
+    def _pasta_destino(self) -> str:
+        return normalizar_pasta(self.campo_pasta.text(), self._resultado.source if self._resultado else None)
 
     def _ao_editar_pasta(self, _texto: str) -> None:
         self._pasta_do_usuario = True
@@ -228,7 +243,7 @@ class TelaRenomear(Pagina):
     # --- Geração --------------------------------------------------------
     def gerar(self) -> None:
         resultado = self._resultado
-        pasta = self.campo_pasta.text().strip()
+        pasta = self._pasta_destino()
         if self.rodando or not resultado or not resultado.documents or not pasta:
             return
         prefixo = self.campo_prefixo.text()
@@ -322,9 +337,13 @@ class TelaRenomear(Pagina):
             self._tarefa.cancelar()
             self.rotulo_progresso.setText("Cancelando...")
 
-    def aguardar(self) -> None:
-        if self._tarefa is not None:
-            self._tarefa.wait()
+    def aguardar(self, limite_ms: int = LIMITE_ESPERA_MS) -> None:
+        """Espera a tarefa terminar; presa além do limite (ex.: página enorme), é derrubada à força."""
+        tarefa = self._tarefa
+        if tarefa is not None and not tarefa.wait(limite_ms):
+            self.contexto.log.warning("Tarefa não terminou em %d ms ao fechar; interrompida à força", limite_ms)
+            tarefa.terminate()  # a gravação usa .part + os.replace: o PDF final nunca fica pela metade
+            tarefa.wait()
 
     def _encerrar(self) -> None:
         self._encerrando = True

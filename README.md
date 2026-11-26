@@ -13,10 +13,20 @@ Baixe o `RenomeadorCTE.exe` da última [Release](../../releases/latest) e abra.
    de CT-e, que ficam reunidas em um arquivo à parte).
 3. Confirme a pasta de destino (botão **Procurar** para trocar) e clique em
    **Separar e renomear**. Por padrão, a pasta se chama
-   `CTEs_<nome do PDF>` e fica ao lado do PDF original.
+   `CTEs_<nome do PDF>` e fica ao lado do PDF original. Pode colar um caminho copiado do
+   Explorer (com aspas) ou digitar um nome relativo, que vale a partir da pasta do PDF.
 
-O que fica salvo no computador é só a escolha de tema (claro ou escuro). Os PDFs não são
+PDFs com senha só de proprietário (inclusive com criptografia AES) são lidos normalmente;
+PDFs que pedem senha para abrir não são suportados.
+
+O que fica salvo no computador é a escolha de tema (claro ou escuro) e o log. Os PDFs não são
 copiados para lugar nenhum além da pasta de destino que você escolheu.
+
+## Log
+
+O `.exe` avulso grava o log em `%LOCALAPPDATA%\RenomeadorCTE\logs\renomeador_cte.log`, com os
+erros e as exceções não tratadas. Dentro do Sistema Financeiro, o log é o da casca. Em caso de
+problema, envie esse arquivo para a TI.
 
 ## Atualização automática
 
@@ -64,7 +74,7 @@ Gera `dist\RenomeadorCTE.exe` e `dist\RenomeadorCTE.exe.sha256`.
 
 O GitHub Actions (`.github/workflows/release.yml`) confere que a tag bate com `__version__`,
 roda os testes, gera o `.exe` e o `.sha256` e publica a Release com os dois arquivos.
-O `requirements.txt` fixa o `tcm-ui` numa tag (`v1.4.0`), que precisa existir no GitHub.
+O `requirements.txt` fixa o `tcm-ui` numa tag (hoje `v1.5.0`), que precisa existir no GitHub.
 
 ## Módulo do Sistema Financeiro
 

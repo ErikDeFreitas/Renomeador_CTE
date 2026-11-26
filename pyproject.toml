@@ -9,7 +9,7 @@ description = "Renomeador de CT-e: separa um PDF de DACTEs em um arquivo por CT-
 requires-python = ">=3.11"
 dependencies = [
     "tcm-ui>=1.4.0",
-    "pypdf>=5.0",
+    "pypdf[crypto]>=5.0",  # crypto: PDFs com criptografia AES
 ]
 
 [project.optional-dependencies]

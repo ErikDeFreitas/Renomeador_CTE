@@ -36,14 +36,14 @@ def test_pode_fechar_antes_e_depois_de_abrir_a_tela(inst):
     assert inst.pode_fechar()
 
 
-def test_nao_fecha_com_pdf_analisado_e_nao_gerado(inst, qtbot, monkeypatch, pdf_em_branco, resultado_falso):
+def test_fecha_sem_aviso_com_pdf_analisado_e_nao_gerado(inst, qtbot, monkeypatch, pdf_em_branco, resultado_falso):
     pdf = pdf_em_branco(1)
     monkeypatch.setattr(cte_engine, "analyze_pdf", lambda caminho, progresso=None: resultado_falso(pdf, [774]))
     tela = inst.widget("separar")
     tela.analisar(str(pdf))
     qtbot.waitUntil(lambda: not tela.rodando, timeout=5000)
     assert tela.pendente
-    assert not inst.pode_fechar()
+    assert inst.pode_fechar()
 
 
 def test_nao_fecha_com_tarefa_presa_e_ao_sair_cancela_sem_modal(inst, qtbot, monkeypatch, tmp_path):

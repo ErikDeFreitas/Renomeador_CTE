@@ -22,5 +22,6 @@ class Renomeador:
         return []
 
     def pode_fechar(self) -> bool:
-        # nunca no meio de uma leitura/geração, nem com um PDF analisado que ainda não foi gerado
-        return self.tela is None or (not self.tela.rodando and not self.tela.pendente)
+        # só no meio de uma leitura/geração; um PDF lido e não gerado se refaz em segundos, e o aviso
+        # da janela ("tarefa em andamento... será interrompida") não serve para esse caso
+        return self.tela is None or not self.tela.rodando
