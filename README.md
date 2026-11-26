@@ -22,6 +22,21 @@ PDFs que pedem senha para abrir não são suportados.
 O que fica salvo no computador é a escolha de tema (claro ou escuro) e o log. Os PDFs não são
 copiados para lugar nenhum além da pasta de destino que você escolheu.
 
+## Renomeador de XML
+
+Este repositório também traz o **Renomeador de XML** (`RenomeadorXML.exe`, na mesma Release):
+cada XML de CT-e de uma pasta passa a se chamar pelo número do CT-e (campo `<nCT>`), por
+exemplo `774.xml`, na própria pasta.
+
+1. Escolha a pasta (botão **Procurar**, ou cole o caminho e clique em **Ler XMLs**).
+2. Confira na tabela o nome novo de cada arquivo. "Já com o nome" não muda; "Sem número"
+   (XML sem `<nCT>`, como um evento), "Nome em uso" e "Erro" (XML ilegível) ficam como estão.
+3. Clique em **Renomear XMLs**.
+
+Nenhum arquivo é sobrescrito e não são criados nomes como `774_1.xml`: se `774.xml` já existir
+(ou outro XML da pasta tiver o mesmo número), o XML fica com o nome que tem e aparece como
+"Nome em uso", para conferir. Subpastas não são lidas.
+
 ## Log
 
 O `.exe` avulso grava o log em `%LOCALAPPDATA%\RenomeadorCTE\logs\renomeador_cte.log`, com os
@@ -65,7 +80,7 @@ eles têm dados de clientes e motoristas (`*.pdf` já está no `.gitignore`).
 powershell -File build.ps1
 ```
 
-Gera `dist\RenomeadorCTE.exe` e `dist\RenomeadorCTE.exe.sha256`.
+Gera `dist\RenomeadorCTE.exe`, `dist\RenomeadorXML.exe` e o `.sha256` de cada um.
 
 ## Lançar uma versão
 
@@ -73,14 +88,16 @@ Gera `dist\RenomeadorCTE.exe` e `dist\RenomeadorCTE.exe.sha256`.
 2. Crie a tag igual, com `v` na frente (`v2.0.1`), e envie-a para o GitHub.
 
 O GitHub Actions (`.github/workflows/release.yml`) confere que a tag bate com `__version__`,
-roda os testes, gera o `.exe` e o `.sha256` e publica a Release com os dois arquivos.
+roda os testes, gera os dois `.exe` com os `.sha256` e publica a Release com os quatro arquivos.
+Os dois programas têm sempre a mesma versão: uma tag nova chega aos usuários dos dois.
 O `requirements.txt` fixa o `tcm-ui` numa tag (hoje `v1.5.0`), que precisa existir no GitHub.
 
 ## Módulo do Sistema Financeiro
 
 O Renomeador também é um módulo da casca Sistema Financeiro (`MODULO` em
 `src/renomeador_cte/modulo.py`, registrado no entry point `sistema_financeiro.modulos`).
-Na casca ele aparece para quem está no grupo `SF-RenomeadorCTE`.
+Na casca ele aparece para quem está no grupo `SF-RenomeadorCTE`. O Renomeador de XML é outro
+módulo (`src/renomeador_cte/modulo_xml.py`, id `renomeador_xml`), liberado pelo mesmo grupo `SF-RenomeadorCTE`.
 
 ## Estrutura
 
@@ -92,7 +109,9 @@ Na casca ele aparece para quem está no grupo `SF-RenomeadorCTE`.
 | `src/renomeador_cte/instancia.py`   | Instância do módulo (casca e avulso)           |
 | `src/renomeador_cte/modulo.py`      | Registro do módulo (`MODULO`)                  |
 | `src/renomeador_cte/dados.py`       | Pasta de dados                                 |
-| `main.py`                           | Ponto de entrada do `.exe` avulso              |
-| `build.ps1`                         | Gera o `.exe` e o `.sha256`                    |
+| `src/renomeador_cte/xml_engine.py`  | Renomeador de XML: leitura do `<nCT>` e renomeação |
+| `src/renomeador_cte/tela_xml.py`, `instancia_xml.py`, `modulo_xml.py` | Tela, instância e registro do Renomeador de XML |
+| `main.py`, `main_xml.py`            | Pontos de entrada dos `.exe` avulsos           |
+| `build.ps1`                         | Gera os dois `.exe` e os `.sha256`             |
 | `assets/`                           | Ícone do executável (`app.ico`)                |
 | `tests/`                            | Testes (pytest)                                |

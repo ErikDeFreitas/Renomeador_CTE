@@ -46,12 +46,16 @@ def test_build_usa_nome_do_exe():
     script = (RAIZ / "build.ps1").read_text(encoding="utf-8")
     workflow = (RAIZ / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
     assert MODULO.nome_exe == "RenomeadorCTE.exe"
-    assert '$nome = "RenomeadorCTE"' in script
+    from renomeador_cte.modulo_xml import MODULO as MODULO_XML
+
+    assert MODULO_XML.nome_exe == "RenomeadorXML.exe"
+    assert 'Gerar "RenomeadorCTE" "main.py"' in script and 'Gerar "RenomeadorXML" "main_xml.py"' in script
     # o .sha256 é gravado como "<hash>  RenomeadorCTE.exe" + quebra de linha
     assert '"$hash  $nome.exe`n"' in script
     assert "--collect-data tcm_ui --collect-data renomeador_cte" in script
     assert "assets/app.ico" in script
-    assert "dist/RenomeadorCTE.exe" in workflow and "dist/RenomeadorCTE.exe.sha256" in workflow
+    for nome in ("RenomeadorCTE", "RenomeadorXML"):
+        assert f"dist/{nome}.exe" in workflow and f"dist/{nome}.exe.sha256" in workflow
     assert (RAIZ / "assets" / "app.ico").is_file()
 
 

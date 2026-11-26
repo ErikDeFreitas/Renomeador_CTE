@@ -13,7 +13,7 @@ def test_valores_do_modulo():
     assert (MODULO.id, MODULO.nome, MODULO.icone) == ("renomeador_cte", "Renomeador de CT-e", "tesoura")
     assert (MODULO.grupo_ad, MODULO.repositorio, MODULO.nome_exe) == (
         "SF-RenomeadorCTE", "ErikDeFreitas/Renomeador_CTE", "RenomeadorCTE.exe")
-    assert MODULO.versao == renomeador_cte.__version__ == "2.0.1"
+    assert MODULO.versao == renomeador_cte.__version__ == "2.1.0"
     assert MODULO.pasta_dados == dados.PASTA
     assert MODULO.aplicacao_settings == "RenomeadorCTE"
     assert [(p.chave, p.titulo, p.subtitulo, p.icone) for p in MODULO.paginas] == [

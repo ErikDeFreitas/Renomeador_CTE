@@ -6,6 +6,7 @@ from collections.abc import Callable
 from PySide6.QtCore import QThread, Signal
 
 from renomeador_cte import cte_engine as engine
+from renomeador_cte.xml_engine import ErroPasta
 
 
 class Cancelado(Exception):
@@ -36,7 +37,7 @@ class Tarefa(QThread):
             resultado = self._funcao(self._ao_progredir)
         except Cancelado:
             self.cancelada.emit()
-        except engine.PdfAnalysisError as exc:
+        except (engine.PdfAnalysisError, ErroPasta) as exc:
             self.falhou.emit(str(exc))
         except Exception as exc:  # a interface precisa sempre sair do estado "ocupado"
             self.falhou.emit(f"Erro inesperado: {exc}")

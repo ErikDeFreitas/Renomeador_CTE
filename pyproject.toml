@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "renomeador-cte"
 dynamic = ["version"]
-description = "Renomeador de CT-e: separa um PDF de DACTEs em um arquivo por CT-e"
+description = "Renomeador de CT-e (separa um PDF de DACTEs em um arquivo por CT-e) e Renomeador de XML"
 requires-python = ">=3.11"
 dependencies = [
     "tcm-ui>=1.4.0",
@@ -17,6 +17,7 @@ dev = ["pytest", "pytest-qt"]
 
 [project.entry-points."sistema_financeiro.modulos"]
 renomeador_cte = "renomeador_cte.modulo:MODULO"
+renomeador_xml = "renomeador_cte.modulo_xml:MODULO"
 
 [tool.setuptools.dynamic]
 version = {attr = "renomeador_cte.__version__"}
